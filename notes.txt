@@ -1,0 +1,15 @@
+# neu-comfy-ui-podman
+podman run -it --rm \
+  --name comfyui-direct \
+  --device ://nvidia.com \
+  --security-opt label=disable \
+  --userns=keep-id \
+  -p 8188:8188 \
+  -v ~/comfyui/models:/home/ubuntu/comfyui/models:Z \
+  -v ~/comfyui/output:/home/ubuntu/comfyui/output:Z \
+  -v ~/comfyui/settings:/home/ubuntu/comfyui/settings:Z \
+  -v ~/comfyui/flows:/home/ubuntu/comfyui/flows:Z \
+  -w /workspace/ComfyUI \
+  --entrypoint /bin/bash \
+  localhost/comfyui-local:latest
+

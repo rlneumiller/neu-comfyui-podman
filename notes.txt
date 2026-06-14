@@ -1,15 +1,21 @@
 # neu-comfy-ui-podman
+# Build image with ContainerFile:
+# podman build -t comfyui-modular-max:latest .
+
+# Commandline to start container normally (access via http)
 podman run -it --rm \
-  --name comfyui-direct \
-  --device ://nvidia.com \
+  --name comfyui-max \
+  --device nvidia.com/gpu=all \
   --security-opt label=disable \
   --userns=keep-id \
   -p 8188:8188 \
-  -v ~/comfyui/models:/home/ubuntu/comfyui/models:Z \
-  -v ~/comfyui/output:/home/ubuntu/comfyui/output:Z \
-  -v ~/comfyui/settings:/home/ubuntu/comfyui/settings:Z \
-  -v ~/comfyui/flows:/home/ubuntu/comfyui/flows:Z \
-  -w /workspace/ComfyUI \
-  --entrypoint /bin/bash \
-  localhost/comfyui-local:latest
+  -e COMFYUI_USE_XFORMERS=1 \
+  -e TORCH_BACKEND_ENABLE_CUDA_FLASH_ATTENTION=1 \
+  -e PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:256 \
+  -v ~/comfyui/models:/workspace/ComfyUI/models:Z \
+  -v ~/comfyui/output:/workspace/ComfyUI/output:Z \
+  -v ~/comfyui/settings:/workspace/ComfyUI/user:Z \
+  -v ~/comfyui/flows:/workspace/ComfyUI/flows:Z \
+  -v ~/comfyui/custom_nodes:/workspace/ComfyUI/custom_nodes:Z \
+  localhost/comfyui-modular-max:latest
 

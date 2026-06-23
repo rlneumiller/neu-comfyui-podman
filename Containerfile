@@ -1,29 +1,31 @@
-# STEP 1/19
+# STEP 1/25
 FROM nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04
 
-# STEP 2/19
+# STEP 2/25
 ARG UID=1000
-# STEP 3/19
+
+# STEP 3/25
 ARG GID=1000
 
-# STEP 4/19
-# Dropped TORCH_BACKEND_ENABLE_CUDA_FLASH_ATTENTION, TORCH_ALLOW_TF32_CUBLAS,
-# TORCH_ALLOW_TF32_CUDNN, and COMFYUI_USE_XFORMERS — none of these are
-# recognized PyTorch/ComfyUI env vars, so they were no-ops.
+# STEP 4/25
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:256 \
     NVIDIA_TF32_OVERRIDE=1 \
-    PATH="/home/appuser/venv/bin:/home/appuser/.local/bin:${PATH}"
+    COMFYUI_RELEASE_BRANCH="release/v0.25"
 
-# STEP 5/19
+# Required to workaround a buildah issue involving variable expansion in ENV instructions.
+# STEP 5/25
+ENV PATH="/home/appuser/venv/bin:/home/appuser/.local/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"    
+
+# STEP 6/25
 USER root
 
-# STEP 6/19
+# STEP 7/25
 RUN groupadd -g ${GID} appuser && \
     useradd -m -u ${UID} -g ${GID} -s /bin/bash appuser
 
-# STEP 7/19
+# STEP 8/25
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     python3-venv \
@@ -32,51 +34,84 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     nodejs \
     npm \
+    ripgrep \
+    fd-find \
+    && ln -s /usr/bin/fdfind /usr/bin/fd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
-# STEP 8/19
+# STEP 9/25
 WORKDIR /workspace
 
-# STEP 9/19
+# STEP 10/25
 RUN git clone https://github.com/Comfy-Org/ComfyUI.git && \
     cd ComfyUI && \
-    git checkout v0.24.0 && \
-    mkdir -p temp models/checkpoints output user custom_nodes
+    git checkout -b ${COMFYUI_RELEASE_BRANCH} origin/${COMFYUI_RELEASE_BRANCH} && \
+    mkdir -p temp models/checkpoints output user custom_nodes && \
+    cd custom_nodes && \
+    git clone https://github.com/city96/ComfyUI-GGUF
 
-# STEP 10/19
+
+# STEP 11/25
 COPY entrypoint.sh /entrypoint.sh
-# STEP 11/19
+
+# STEP 12/25
 COPY auto_models.sh /auto_models.sh
 
-# STEP 12/19
+# STEP 13/25
 RUN chmod +x /entrypoint.sh /auto_models.sh && \
     chown -R appuser:appuser /workspace /home/appuser
 
-# STEP 13/19
+# STEP 14/25
+RUN mkdir -p /home/appuser/.cache/uv && \
+    chown -R appuser:appuser /home/appuser/.cache
+
+# STEP 15/25
 USER appuser
 
-# STEP 14/19
+# STEP 16/25
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# STEP 15/19
+# STEP 17/25
 WORKDIR /workspace/ComfyUI
 
-# STEP 16/19
+# Install BASE ComfyUI dependencies first
+# STEP 18/25
+RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000,mode=0777 \
+    python3 -m venv /home/appuser/venv && \
+    uv pip install --python /home/appuser/venv/bin/python --upgrade pip && \
+    uv pip install --python /home/appuser/venv/bin/python torch torchvision --index-url https://download.pytorch.org/whl/cu124 && \
+    uv pip install --python /home/appuser/venv/bin/python -r requirements.txt
+
+# Clone custom nodes
+# STEP 19/25
+RUN cd /workspace/ComfyUI/custom_nodes && \
+    git clone https://github.com/city96/ComfyUI-GGUF
+
+# STEP 20/25
 RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000,mode=0777 \
     python3 -m venv /home/appuser/venv && \
     . /home/appuser/venv/bin/activate && \
     uv pip install --upgrade pip && \
     uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130 && \
-    uv pip install -r requirements.txt && \
-    uv pip install gitpython && \
-    uv pip install comfyui_manager==4.2.2
+    uv pip install --upgrade gguf && \
+    uv pip install -r requirements.txt
+    
+# Install custom node dependencies
+# STEP 21/25
+RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000,mode=0777 \
+    uv pip install --python /home/appuser/venv/bin/python --upgrade gguf && \
+    uv pip install --python /home/appuser/venv/bin/python -r custom_nodes/ComfyUI-GGUF/requirements.txt
 
-# STEP 17/19
+# Reset ComfyUI database to avoid Alembic migration errors
+# STEP 22/25
+RUN rm -f /workspace/ComfyUI/comfyui.db
+
+# STEP 23/25
 EXPOSE 8188
 
-# STEP 18/19
+# STEP 24/25
 ENTRYPOINT ["/entrypoint.sh"]
 
-# STEP 19/19
+# STEP 25/25
 CMD ["python", "main.py", "--listen", "0.0.0.0"]

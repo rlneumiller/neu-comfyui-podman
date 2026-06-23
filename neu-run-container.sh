@@ -12,4 +12,4 @@ podman run -it --rm --name comfyui \
  -v ~/comfyui/custom_nodes:/workspace/ComfyUI/custom_nodes:Z \
  -v ~/comfyui/settings:/workspace/ComfyUI/user:Z \
  -v ~/comfyui/temp:/workspace/ComfyUI/temp:Z \
- localhost/comfyui-v0.25.0:commit-e16c3d25-gguf
+ localhost/comfyui-v0.25.0:commit-32ae34f4-gguf

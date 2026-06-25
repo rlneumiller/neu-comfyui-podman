@@ -46,7 +46,8 @@ WORKDIR /workspace
 # STEP 10/23
 RUN git clone https://github.com/Comfy-Org/ComfyUI.git && \
     cd /workspace/ComfyUI && \
-    git checkout -b ${COMFYUI_RELEASE_BRANCH} origin/${COMFYUI_RELEASE_BRANCH} && \
+    #git checkout -b ${COMFYUI_RELEASE_BRANCH} origin/${COMFYUI_RELEASE_BRANCH} && \
+    git checkout tags/v0.26.0 && \
     mkdir -p temp models/checkpoints output user custom_nodes
 
 # STEP 11/23

@@ -82,8 +82,9 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000,mode=077
     uv pip install --python /home/appuser/venv/bin/python torch torchvision --index-url https://download.pytorch.org/whl/cu130 && \
     uv pip install --python /home/appuser/venv/bin/python --upgrade gguf && \
     uv pip install --python /home/appuser/venv/bin/python -r requirements.txt && \
-    uv pip install --python /home/appuser/venv/bin/python -U --pre comfyui-manager
-
+    uv pip install --python /home/appuser/venv/bin/python -U --pre comfyui-manager && \
+    # Force stable tokenizers to prevent RobertaProcessing __new__() errors from RC versions
+    uv pip install --python /home/appuser/venv/bin/python 'tokenizers==0.23.0'
 
 # Reset ComfyUI database to avoid Alembic migration errors
 # STEP 19/22

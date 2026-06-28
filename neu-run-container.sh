@@ -20,8 +20,14 @@ podman run -it --rm --name comfyui \
  -v ~/comfyui/output:/workspace/ComfyUI/output:Z \
  -v ~/comfyui/custom_nodes:/workspace/ComfyUI/custom_nodes:Z \
  -v ~/comfyui/settings:/workspace/ComfyUI/user:Z \
- -v ~/comfyui/temp:/workspace/ComfyUI/temp:Z \
  localhost/$COMFYUI_IMAGE_TAG
+
+
+# # Copilot suggests these mounts only, but...
+# -v ~/comfyui/models:/workspace/ComfyUI/models:Z \
+# -v ~/comfyui/input:/workspace/ComfyUI/input:Z \
+# -v ~/comfyui/output:/workspace/ComfyUI/output:Z \
+# -v ~/comfyui/user:/workspace/ComfyUI/user:Z
 
 # Intentional dev fail-safe to force re-evaluation before the next run.
 # This prevents my internal autopilot from restarting the container with

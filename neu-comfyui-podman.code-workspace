@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../.cache/huggingface/hub"
+		},
+		{
+			"path": "../../comfyui"
+		},
+		{
+			"path": "../../comfyui.previous"
+		}
+	]
+}

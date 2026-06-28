@@ -83,8 +83,8 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000,mode=077
     uv pip install --python /home/appuser/venv/bin/python --upgrade gguf && \
     uv pip install --python /home/appuser/venv/bin/python -r requirements.txt && \
     uv pip install --python /home/appuser/venv/bin/python -U --pre comfyui-manager && \
-    # Force stable tokenizers to prevent RobertaProcessing __new__() errors from RC versions
-    uv pip install --python /home/appuser/venv/bin/python 'tokenizers==0.23.0'
+    # Force the 0.22.x branch to bypass the broken 0.23.0rc0 RobertaProcessing bug
+    uv pip install --python /home/appuser/venv/bin/python 'tokenizers>=0.22.0,<0.23.0'
 
 # Reset ComfyUI database to avoid Alembic migration errors
 # STEP 19/22

@@ -1,15 +1,18 @@
 #!/bin/bash
-TAG_FILE="/home/arrel/gits/neu-comfyui-podman/.image_tag"
+
+NEU_REPO_ID="comfyui"
+
+TAG_FILE="/home/arrel/gits/neu-$NEU_REPO_ID-podman/.image_tag"
 
 if [ ! -s "$TAG_FILE" ]; then
     echo "The .image_tag file is missing or empty. Perhaps you need to run neu-build-image.sh first?"
     exit 1
 fi
 
-COMFYUI_IMAGE_TAG=$(cat "$TAG_FILE")
-echo "Starting image: $COMFYUI_IMAGE_TAG"
+NEU_IMAGE_TAG=$(cat "$TAG_FILE")
+echo "Starting image: $NEU_IMAGE_TAG"
 
-podman run -it --rm --name comfyui \
+podman run -it --rm --name $NEU_REPO_ID \
  --device nvidia.com/gpu=all \
  --security-opt label=disable \
  --userns=keep-id -p 8188:8188 \
@@ -19,8 +22,8 @@ podman run -it --rm --name comfyui \
  -v ~/comfyui/models:/workspace/ComfyUI/models:Z \
  -v ~/comfyui/output:/workspace/ComfyUI/output:Z \
  -v ~/comfyui/custom_nodes:/workspace/ComfyUI/custom_nodes:Z \
- -v ~/comfyui/settings:/workspace/ComfyUI/user:Z \
- localhost/$COMFYUI_IMAGE_TAG
+ -v ~/comfyui/user:/workspace/ComfyUI/user:Z \
+ localhost/$NEU_IMAGE_TAG
 
 
 # # Copilot suggests these mounts only, but...

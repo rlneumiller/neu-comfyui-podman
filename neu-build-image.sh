@@ -8,5 +8,5 @@ fi
 commit_hash=$(git log -1 --pretty=format:"%h" --abbrev=8 Containerfile) && \
 echo "$commit_hash" > latest_containerfile_commit_hash && \
 echo "Building ComfyUI image with commit hash: $commit_hash" && \
-podman build -t comfyui-v0.25.0:commit-$commit_hash-gguf . && \
-echo "comfyui-v0.25.0:commit-$commit_hash-gguf" > .image_tag
+podman build -t comfyui:commit-$commit_hash . && \
+echo "comfyui:commit-$commit_hash" > .image_tag

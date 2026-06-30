@@ -1,16 +1,28 @@
 {
 	"folders": [
 		{
+			"name": "neu-comfyui-podman",
 			"path": "."
 		},
 		{
+			"name": "neu-sdxl-podman",
+			"path": "../neu-sdxl-podman"
+		},
+		{
+			"name": "z-image-container",
+			"path": "../../temp/z-image-container"
+		},
+		{
+			"name": "hub",
 			"path": "../../.cache/huggingface/hub"
 		},
 		{
+			"name": "comfyui",
 			"path": "../../comfyui"
 		},
 		{
-			"path": "../../comfyui.previous"
+			"name": "diffusers",
+			"path": "../diffusers"
 		}
 	]
 }

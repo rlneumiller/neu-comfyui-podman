@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Not currently in use because I'm using btrfs now, so needn't be concerned about duplicated data so much
+
 CKPT_DIR="/workspace/ComfyUI/models/checkpoints"
 CKPT_NAME="DreamShaper_8_pruned.safetensors"
 CKPT_PATH="${CKPT_DIR}/${CKPT_NAME}"
